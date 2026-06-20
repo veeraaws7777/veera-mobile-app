@@ -1,1 +1,230 @@
-hi
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Welcome Screen</title>
+    <style>
+        /* ==========================================
+           1. CORE DOCUMENT STANDARDIZATIONS
+           ========================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* ==========================================
+           2. WELCOME SCREEN LAYOUT
+           ========================================== */
+        .welcome-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #0b0f19;
+            display: flex;
+            align-items: flex-end; /* Bottom-anchored for mobile thumb reach */
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease, transform 0.6s cubic-bezier(0.1, 1, 0.1, 1);
+            padding: 24px;
+        }
+
+        /* Background Decorative Blur Circles */
+        .circle {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: 1;
+        }
+
+        .circle-top {
+            top: -5%;
+            right: -10%;
+            width: 300px;
+            height: 300px;
+            background: #6366f1;
+            opacity: 0.8;
+        }
+
+        .circle-bottom {
+            bottom: 25%;
+            left: -20%;
+            width: 250px;
+            height: 250px;
+            background: #ec4899;
+            opacity: 0.5;
+        }
+
+        /* Glassmorphism Content Card */
+        .content-card {
+            position: relative;
+            z-index: 2;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 28px;
+            padding: 36px 24px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            margin-bottom: env(safe-area-inset-bottom, 16px); /* iOS notch protection */
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        /* ==========================================
+           3. TYPOGRAPHY HIERARCHY
+           ========================================== */
+        .brand-logo {
+            font-size: 3.5rem;
+            margin-bottom: 16px;
+            display: inline-block;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .main-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
+
+        .main-title span {
+            background: linear-gradient(to right, #818cf8, #f472b6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            color: #94a3b8;
+            line-height: 1.5;
+            margin-bottom: 36px;
+        }
+
+        /* ==========================================
+           4. INTERACTIVE COMPONENTS (BUTTONS)
+           ========================================== */
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 18px;
+            border-radius: 16px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: transform 0.1s ease, background 0.2s ease;
+        }
+
+        .btn:active {
+            transform: scale(0.97); /* Micro-interaction feedback on tap */
+        }
+
+        .btn-primary {
+            background: #ffffff;
+            color: #0f172a;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* ==========================================
+           5. INTERACTIVE ANIMATION STATES
+           ========================================== */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .welcome-screen.dismissed {
+            opacity: 0;
+            transform: translateY(-100%);
+            pointer-events: none;
+        }
+
+        /* ==========================================
+           6. MAIN APP PLACEHOLDER VIEW
+           ========================================== */
+        .app-main-content {
+            padding: 40px 24px;
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto;
+            opacity: 0;
+            transform: scale(0.95);
+            transition: opacity 0.5s ease 0.2s, transform 0.5s ease 0.2s;
+        }
+
+        body:has(.welcome-screen.dismissed) .app-main-content {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .app-main-content h2 {
+            font-size: 2rem;
+            margin-bottom: 12px;
+        }
+
+        .app-main-content p {
+            color: #94a3b8;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Main Welcome Screen Viewport Container -->
+    <main class="welcome-screen" id="welcomeScreen">
+        <div class="circle circle-top"></div>
+        <div class="circle circle-bottom"></div>
+
+        <section class="content-card">
+            <div class="brand-logo">✨</div>
+            <h1 class="main-title">Welcome to <br><span>YourApp</span></h1>
+            <p class="subtitle">Discover a seamless and smarter way to manage your modern lifestyle from anywhere.</p>
+            
+            <button class="btn btn-primary" id="startBtn">Get Started</button>
+            <button class="btn btn-secondary">Learn More</button>
+        </section>
+    </main>
+
+    <!-- Main Application UI Target View -->
+    <div class="app-main-content">
+        <h2>Dashboard</h2>
+        <p>Your main application interface loaded successfully.</p>
+    </div>
+
+    <!-- Interface Logic Rules -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const welcomeScreen = document.getElementById("welcomeScreen");
+            const startBtn = document.getElementById("startBtn");
+
+            if (startBtn && welcomeScreen) {
+                startBtn.addEventListener("click", () => {
+                    // Triggers the CSS layout dismissal transition
+                    welcomeScreen.classList.add("dismissed");
+                });
+            }
+        });
+    </script>
+</body>
+</html>
