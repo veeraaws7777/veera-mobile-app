@@ -2,229 +2,319 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mobile Welcome Screen</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Enterprise Mobile Onboarding</title>
     <style>
         /* ==========================================
-           1. CORE DOCUMENT STANDARDIZATIONS
+           1. DESIGN SYSTEM VARIABLES & RESET
            ========================================== */
+        :root {
+            --bg-dark: #090d16;
+            --surface-glass: rgba(255, 255, 255, 0.03);
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --primary-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            --accent-gradient: linear-gradient(90deg, #60a5fa, #f472b6);
+            --radius-xl: 32px;
+            --radius-m: 16px;
+            --transition-smooth: cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
             -webkit-tap-highlight-color: transparent;
+            user-select: none;
         }
 
         body {
-            background-color: #0f172a;
-            color: #f8fafc;
-            overflow-x: hidden;
-            min-height: 100vh;
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+            height: 100%;
         }
 
         /* ==========================================
-           2. WELCOME SCREEN LAYOUT
+           2. ANIMATED SPLASH SCREEN (INITIAL)
            ========================================== */
-        .welcome-screen {
+        .splash-screen {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: #0b0f19;
+            background: var(--bg-dark);
+            z-index: 10000;
             display: flex;
-            align-items: flex-end; /* Bottom-anchored for mobile thumb reach */
+            flex-direction: column;
             justify-content: center;
-            z-index: 9999;
-            transition: opacity 0.5s ease, transform 0.6s cubic-bezier(0.1, 1, 0.1, 1);
-            padding: 24px;
+            align-items: center;
+            transition: opacity 0.6s var(--transition-smooth), transform 0.6s var(--transition-smooth);
         }
 
-        /* Background Decorative Blur Circles */
-        .circle {
-            position: absolute;
+        .splash-logo {
+            font-size: 4rem;
+            filter: drop-shadow(0 0 20px rgba(99, 102, 241, 0.5));
+            animation: pulse-glow 2s infinite alternate var(--transition-smooth);
+        }
+
+        .spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
             border-radius: 50%;
-            filter: blur(80px);
-            z-index: 1;
+            border-top-color: #6366f1;
+            margin-top: 32px;
+            animation: spin 1s linear infinite;
         }
 
-        .circle-top {
-            top: -5%;
-            right: -10%;
-            width: 300px;
-            height: 300px;
-            background: #6366f1;
-            opacity: 0.8;
-        }
-
-        .circle-bottom {
-            bottom: 25%;
-            left: -20%;
-            width: 250px;
-            height: 250px;
-            background: #ec4899;
-            opacity: 0.5;
-        }
-
-        /* Glassmorphism Content Card */
-        .content-card {
-            position: relative;
-            z-index: 2;
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 28px;
-            padding: 36px 24px;
+        /* ==========================================
+           3. ONBOARDING & CAROUSEL ENGINE
+           ========================================== */
+        .welcome-experience {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
-            max-width: 400px;
-            text-align: center;
-            margin-bottom: env(safe-area-inset-bottom, 16px); /* iOS notch protection */
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-        }
-
-        /* ==========================================
-           3. TYPOGRAPHY HIERARCHY
-           ========================================== */
-        .brand-logo {
-            font-size: 3.5rem;
-            margin-bottom: 16px;
-            display: inline-block;
-            animation: float 3s ease-in-out infinite;
-        }
-
-        .main-title {
-            font-size: 2.2rem;
-            font-weight: 800;
-            line-height: 1.2;
-            margin-bottom: 12px;
-            letter-spacing: -0.5px;
-        }
-
-        .main-title span {
-            background: linear-gradient(to right, #818cf8, #f472b6);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .subtitle {
-            font-size: 1rem;
-            color: #94a3b8;
-            line-height: 1.5;
-            margin-bottom: 36px;
-        }
-
-        /* ==========================================
-           4. INTERACTIVE COMPONENTS (BUTTONS)
-           ========================================== */
-        .btn {
-            display: block;
-            width: 100%;
-            padding: 18px;
-            border-radius: 16px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            border: none;
-            transition: transform 0.1s ease, background 0.2s ease;
-        }
-
-        .btn:active {
-            transform: scale(0.97); /* Micro-interaction feedback on tap */
-        }
-
-        .btn-primary {
-            background: #ffffff;
-            color: #0f172a;
-            margin-bottom: 12px;
-            box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
-        }
-
-        .btn-secondary {
-            background: transparent;
-            color: #ffffff;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        /* ==========================================
-           5. INTERACTIVE ANIMATION STATES
-           ========================================== */
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-
-        .welcome-screen.dismissed {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: calc(24px + env(safe-area-inset-top)) 24px calc(24px + env(safe-area-inset-bottom));
+            z-index: 999;
             opacity: 0;
-            transform: translateY(-100%);
-            pointer-events: none;
+            transform: scale(1.05);
+            transition: opacity 0.8s var(--transition-smooth), transform 0.8s var(--transition-smooth);
         }
 
-        /* ==========================================
-           6. MAIN APP PLACEHOLDER VIEW
-           ========================================== */
-        .app-main-content {
-            padding: 40px 24px;
-            text-align: center;
-            max-width: 600px;
-            margin: 0 auto;
-            opacity: 0;
-            transform: scale(0.95);
-            transition: opacity 0.5s ease 0.2s, transform 0.5s ease 0.2s;
-        }
-
-        body:has(.welcome-screen.dismissed) .app-main-content {
+        .welcome-experience.active {
             opacity: 1;
             transform: scale(1);
         }
 
-        .app-main-content h2 {
-            font-size: 2rem;
-            margin-bottom: 12px;
+        /* Ambient Blur Mesh Backgrounds */
+        .glow-mesh {
+            position: absolute;
+            width: 350px;
+            height: 350px;
+            border-radius: 50%;
+            filter: blur(90px);
+            z-index: 1;
+            opacity: 0.6;
+            pointer-events: none;
+            transition: all 0.8s var(--transition-smooth);
         }
 
-        .app-main-content p {
-            color: #94a3b8;
+        .glow-1 { top: -50px; right: -50px; background: #6366f1; }
+        .glow-2 { bottom: 100px; left: -100px; background: #ec4899; }
+
+        /* Track Container for slides */
+        .carousel-container {
+            position: relative;
+            flex: 1;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            z-index: 2;
+        }
+
+        .carousel-track {
+            display: flex;
+            width: 100%;
+            height: 80%;
+            transition: transform 0.4s var(--transition-smooth);
+            will-change: transform;
+        }
+
+        .slide {
+            min-width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 0 16px;
+            opacity: 0;
+            transform: scale(0.9);
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .slide-graphic {
+            font-size: 5.5rem;
+            margin-bottom: 40px;
+        }
+
+        .slide h2 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 16px;
+            letter-spacing: -0.5px;
+        }
+
+        .slide h2 span {
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .slide p {
+            font-size: 1.05rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            max-width: 320px;
+        }
+
+        /* Form Controls inside final Slide */
+        .auth-form {
+            width: 100%;
+            max-width: 320px;
+            margin-top: 20px;
+        }
+
+        .input-group {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-m);
+            padding: 14px 16px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-group input {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: white;
+            width: 100%;
+            font-size: 1rem;
+        }
+
+        /* ==========================================
+           4. BOTTOM INTERFACE FOOTER & DOTS
+           ========================================== */
+        .footer-controls {
+            position: relative;
+            z-index: 2;
+            background: var(--surface-glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-xl);
+            padding: 24px;
+            box-shadow: 0 24px 48px rgba(0,0,0,0.4);
+        }
+
+        .pagination-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .dot.active {
+            width: 24px;
+            background: #6366f1;
+        }
+
+        /* Buttons System Layout */
+        .btn-wrapper {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 16px;
+            border-radius: var(--radius-m);
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.1s ease, opacity 0.3s ease;
+            text-align: center;
+        }
+
+        .btn:active { transform: scale(0.97); }
+        .btn-primary { background: white; color: var(--bg-dark); }
+        .btn-action { background: var(--primary-gradient); color: white; }
+        .btn-secondary { background: transparent; color: white; border: 1px solid rgba(255,255,255,0.15); }
+
+        /* ==========================================
+           5. KEYFRAMES ANIMATION DEFS
+           ========================================== */
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        @keyframes pulse-glow {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            100% { transform: scale(1.05); opacity: 1; }
+        }
+
+        /* Exit Animation Trigger Class for JS */
+        .experience-dismissed {
+            opacity: 0 !important;
+            transform: translateY(-50px) !important;
+            pointer-events: none;
+        }
+
+        /* Target Main UI App Display Placeholder */
+        .dashboard-mock {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: #0f172a;
+            z-index: 1;
+            padding: 24px;
+            text-align: center;
         }
     </style>
 </head>
 <body>
 
-    <!-- Main Welcome Screen Viewport Container -->
-    <main class="welcome-screen" id="welcomeScreen">
-        <div class="circle circle-top"></div>
-        <div class="circle circle-bottom"></div>
-
-        <section class="content-card">
-            <div class="brand-logo">✨</div>
-            <h1 class="main-title">Welcome to <br><span>YourApp</span></h1>
-            <p class="subtitle">Discover a seamless and smarter way to manage your modern lifestyle from anywhere.</p>
-            
-            <button class="btn btn-primary" id="startBtn">Get Started</button>
-            <button class="btn btn-secondary">Learn More</button>
-        </section>
-    </main>
-
-    <!-- Main Application UI Target View -->
-    <div class="app-main-content">
-        <h2>Dashboard</h2>
-        <p>Your main application interface loaded successfully.</p>
+    <!-- Stage 1: Fluid System Splash Screen -->
+    <div class="splash-screen" id="splashScreen">
+        <div class="splash-logo">🚀</div>
+        <div class="spinner"></div>
     </div>
 
-    <!-- Interface Logic Rules -->
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const welcomeScreen = document.getElementById("welcomeScreen");
-            const startBtn = document.getElementById("startBtn");
+    <!-- Stage 2: Core Onboarding UI -->
+    <div class="welcome-experience" id="welcomeSystem">
+        <div class="glow-mesh glow-1" id="mesh1"></div>
+        <div class="glow-mesh glow-2" id="mesh2"></div>
 
-            if (startBtn && welcomeScreen) {
-                startBtn.addEventListener("click", () => {
-                    // Triggers the CSS layout dismissal transition
-                    welcomeScreen.classList.add("dismissed");
-                });
-            }
-        });
-    </script>
-</body>
-</html>
+        <!-- Touch Slidable Carousel Track Container -->
+        <div class="carousel-container">
+            <div class="carousel-track" id="carouselTrack">
+                
+                <!-- Slide 1 -->
+                <div class="slide active">
+                    <div class="slide-graphic">🛡️</div>
+                    <h2>Secure & <br><span>Encrypted</span></h2>
+                    <p>Your private data is secured with absolute end-to-end cloud protection architectures.</p>
+                </div>
+
+                <!-- Slide 2 -->
+                <div class="slide">
+                    <div class="slide-graphic">⚡</div>
