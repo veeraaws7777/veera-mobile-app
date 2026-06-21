@@ -3,628 +3,417 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Device Dashboard</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<title>Cloud Fox – Veera Cloud</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f0f5;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:2rem 1rem}
-.phone-wrap{display:flex;justify-content:center}
-.phone{width:340px;background:#111;border-radius:44px;padding:10px;border:2px solid #2a2a2a;position:relative}
-.phone::before{content:'';position:absolute;top:78px;left:-4px;width:4px;height:30px;background:#222;border-radius:2px 0 0 2px}
-.phone::after{content:'';position:absolute;top:118px;left:-4px;width:4px;height:30px;background:#222;border-radius:2px 0 0 2px}
-.side-btn{position:absolute;top:90px;right:-4px;width:4px;height:54px;background:#222;border-radius:0 2px 2px 0}
-.phone-inner{background:#0a0a0a;border-radius:36px;overflow:hidden}
-.notch-bar{background:#111;height:38px;display:flex;align-items:center;justify-content:space-between;padding:0 20px 0 24px;position:relative}
-.notch-pill{width:96px;height:28px;background:#000;border-radius:20px;position:absolute;left:50%;transform:translateX(-50%)}
-.status-time{font-size:13px;font-weight:600;color:#fff;z-index:2;letter-spacing:0.02em}
-.status-icons{display:flex;gap:5px;align-items:center;z-index:2}
-.status-icons i{font-size:13px;color:#fff}
-.screen{background:#0f0f14}
-.home-indicator{height:30px;background:#111;display:flex;align-items:center;justify-content:center;border-radius:0 0 36px 36px}
-.home-bar{width:110px;height:4px;background:#333;border-radius:2px}
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@600;700;800&display=swap');
 
-.qs-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:14px}
-.qt{display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none}
-.qt-icon{width:50px;height:50px;border-radius:18px;display:flex;align-items:center;justify-content:center;transition:background 0.15s,transform 0.1s}
-.qt-icon:active{transform:scale(0.92)}
-.qt-icon i{font-size:22px}
-.qt-label{font-size:10px;text-align:center}
-.qt.on .qt-icon{background:#1a73e8}
-.qt.on .qt-icon i{color:#fff}
-.qt.on .qt-label{color:#64a9ff}
-.qt.off .qt-icon{background:#1e1e28}
-.qt.off .qt-icon i{color:#555}
-.qt.off .qt-label{color:#555}
-.qt.warn .qt-icon{background:#2a1f0a}
-.qt.warn .qt-icon i{color:#f59e0b}
-.qt.warn .qt-label{color:#f59e0b}
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-.divider{height:0.5px;background:#1e1e1e;margin:0 14px}
-.section-label{font-size:10px;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:0.08em;padding:12px 14px 8px}
+  :root {
+    --bg: #0a0d14;
+    --surface: #111520;
+    --border: #1c2336;
+    --accent: #f97316;
+    --accent2: #fb923c;
+    --glow: rgba(249,115,22,0.15);
+    --text: #eef2ff;
+    --muted: #5a6a8a;
+    --online: #22d3ee;
+    --offline: #a78bfa;
+  }
 
-.info-card{background:#161620;border-radius:16px;margin:0 12px 12px;padding:4px 14px}
-.info-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:0.5px solid #1e1e28}
-.info-row:last-child{border-bottom:none}
-.info-key{font-size:12px;color:#666;display:flex;align-items:center;gap:6px}
-.info-key i{font-size:14px;color:#444}
-.info-val{font-size:12px;color:#bbb;font-weight:500;text-align:right;max-width:55%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.info-val.green{color:#4ade80}
-.info-val.blue{color:#60a5fa}
-.info-val.red{color:#f87171}
+  html, body { height: 100%; }
 
-.touch-zone{background:#161620;border-radius:16px;margin:0 12px 4px;overflow:hidden}
-.touch-header{padding:10px 14px 8px;display:flex;align-items:center;justify-content:space-between}
-.touch-title{font-size:12px;color:#888;display:flex;align-items:center;gap:6px}
-.touch-title i{font-size:14px}
-.touch-count{font-size:11px;color:#444;font-family:monospace}
-.touch-pad{height:140px;background:#0d0d14;border-top:0.5px solid #1e1e28;position:relative;cursor:crosshair;user-select:none;-webkit-user-select:none;touch-action:none}
-.touch-dot{position:absolute;width:40px;height:40px;border-radius:50%;border:2px solid #1a73e8;background:rgba(26,115,232,0.15);transform:translate(-50%,-50%);pointer-events:none;transition:opacity 0.25s}
-.touch-num{position:absolute;width:16px;height:16px;border-radius:50%;background:#1a73e8;color:#fff;font-size:9px;font-weight:600;display:flex;align-items:center;justify-content:center;top:-2px;right:-2px}
-.touch-hint{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:11px;color:#2a2a3a;text-align:center;pointer-events:none;line-height:1.6}
-.touch-tags{padding:8px 14px;display:flex;gap:5px;flex-wrap:wrap}
-.ttag{font-size:10px;color:#444;background:#0d0d14;border:0.5px solid #1e1e28;border-radius:20px;padding:3px 9px;transition:all 0.2s}
-.ttag.active{color:#60a5fa;border-color:#1a73e8;background:#0d1420}
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem 1rem 2rem;
+    overflow-x: hidden;
+  }
 
-.vib-row{display:flex;gap:6px;padding:8px 12px 12px;flex-wrap:wrap}
-.vib-btn{flex:1;min-width:68px;background:#161620;border:0.5px solid #1e1e28;border-radius:12px;padding:9px 4px;text-align:center;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:all 0.15s}
-.vib-btn:active{transform:scale(0.94)}
-.vib-btn i{font-size:17px;color:#555;display:block;margin-bottom:3px}
-.vib-btn span{font-size:10px;color:#555}
-.vib-btn.pulse{background:#1f1a0a;border-color:#92400e}
-.vib-btn.pulse i,.vib-btn.pulse span{color:#fbbf24}
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(249,115,22,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(249,115,22,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
 
-.loc-card{background:#161620;border-radius:16px;margin:0 12px 4px;overflow:hidden}
-.loc-header{padding:10px 14px;display:flex;align-items:center;justify-content:space-between}
-.loc-get-btn{background:#1a73e8;border:none;border-radius:10px;padding:5px 11px;font-size:11px;color:#fff;cursor:pointer;display:flex;align-items:center;gap:4px;-webkit-tap-highlight-color:transparent}
-.loc-get-btn i{font-size:12px}
-.loc-pills{padding:0 14px 10px;display:flex;gap:5px}
-.lpill{flex:1;background:#0d0d14;border-radius:8px;padding:4px 4px;font-size:10px;color:#444;font-family:monospace;text-align:center;border:0.5px solid #1e1e28;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.lpill.active{color:#60a5fa;border-color:#1a3a6e}
-.loc-map{height:100px;background:#0d0d14;border-top:0.5px solid #1e1e28;position:relative;overflow:hidden}
-.loc-map-hint{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:10px;color:#222;text-align:center}
+  /* ── Brand ── */
+  .brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 1.8rem;
+    position: relative;
+    z-index: 1;
+  }
 
-.file-card{background:#161620;border-radius:16px;margin:0 12px 14px;overflow:hidden}
-.file-toolbar{padding:8px 10px;display:flex;gap:5px;border-bottom:0.5px solid #1e1e28}
-.fbtn{flex:1;background:#0d0d14;border:0.5px solid #1e1e28;border-radius:10px;padding:7px 4px;font-size:10px;color:#666;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;-webkit-tap-highlight-color:transparent;transition:background 0.1s}
-.fbtn:active{background:#1e1e28}
-.fbtn i{font-size:14px}
-.flist{max-height:160px;overflow-y:auto}
-.fitem{display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:0.5px solid #111;cursor:pointer}
-.fitem:hover{background:#111}
-.fitem i{font-size:15px;color:#444}
-.fitem-name{flex:1;font-size:11px;color:#aaa;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.fitem-size{font-size:10px;color:#555;font-family:monospace}
-.file-empty{padding:20px;text-align:center;font-size:11px;color:#2a2a2a}
-.file-empty i{font-size:24px;display:block;margin-bottom:6px}
-.drop-zone{padding:10px 12px;border:1px dashed #1e1e28;margin:8px 10px;border-radius:10px;text-align:center;font-size:10px;color:#444;cursor:pointer;transition:background 0.15s}
-.drop-zone:hover{background:#0d0d14}
-.drop-zone i{font-size:15px;display:block;margin-bottom:2px}
-.fprev{padding:0 12px 10px}
-.fprev img{max-width:100%;border-radius:8px;max-height:130px;display:block;margin-top:8px}
-.fprev pre{background:#0d0d14;border-radius:8px;padding:8px;font-size:10px;color:#7dd3fc;font-family:monospace;overflow:auto;max-height:100px;white-space:pre-wrap;margin-top:8px;border:0.5px solid #1e1e28}
-.fprev-label{font-size:10px;color:#555;padding:6px 0 2px}
+  .logo-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.9rem;
+  }
+
+  .logo-wrap img {
+    width: 90px;
+    height: 90px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 10px rgba(249,115,22,0.35));
+  }
+
+  .brand-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+  .brand-name .cloud { color: var(--text); }
+  .brand-name .fox   { color: var(--accent); }
+
+  .by-line {
+    font-size: 0.62rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 0.35rem;
+  }
+  .by-line span { color: var(--accent); }
+
+  /* ── Header text ── */
+  .header {
+    text-align: center;
+    margin-bottom: 2rem;
+    position: relative;
+    z-index: 1;
+    width: 100%;
+  }
+  .header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(1.2rem, 4.5vw, 1.75rem);
+    font-weight: 700;
+  }
+  .header p {
+    margin-top: 0.4rem;
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+
+  /* ── Screens ── */
+  .screen { display: none; width: 100%; max-width: 860px; position: relative; z-index: 1; }
+  .screen.active { display: block; }
+
+  /* ── Batch Cards ── */
+  .batch-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+  }
+  @media (min-width: 600px) {
+    .batch-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.1rem;
+    }
+  }
+
+  .batch-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 1.25rem 1.2rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: border-color 0.22s, box-shadow 0.22s, transform 0.15s;
+    position: relative;
+    overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
+  }
+  @media (min-width: 600px) {
+    .batch-card { flex-direction: column; text-align: center; padding: 1.75rem 1.25rem; }
+  }
+
+  .batch-card::before {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.25s ease;
+  }
+  .batch-card:hover::before,
+  .batch-card:active::before { transform: scaleX(1); }
+  .batch-card:hover {
+    border-color: var(--accent);
+    box-shadow: 0 0 28px var(--glow), 0 4px 20px rgba(0,0,0,0.3);
+  }
+  .batch-card:active { transform: scale(0.97); }
+
+  .batch-badge {
+    width: 48px; height: 48px;
+    border-radius: 12px;
+    background: rgba(249,115,22,0.1);
+    border: 1px solid rgba(249,115,22,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+  @media (min-width: 600px) {
+    .batch-badge { width: 54px; height: 54px; font-size: 1.6rem; margin-bottom: 0.5rem; }
+  }
+
+  .batch-info { flex: 1; }
+
+  .batch-time {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.45rem;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+  @media (min-width: 600px) { .batch-time { font-size: 1.7rem; } }
+
+  .batch-sub {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-top: 0.3rem;
+  }
+
+  .batch-chevron {
+    color: var(--accent);
+    font-size: 1.3rem;
+    flex-shrink: 0;
+    transition: transform 0.2s;
+  }
+  .batch-card:hover .batch-chevron { transform: translateX(3px); }
+  @media (min-width: 600px) {
+    .batch-chevron { margin-top: 0.8rem; opacity: 0; transition: opacity 0.2s, transform 0.2s; }
+    .batch-card:hover .batch-chevron { opacity: 1; transform: translateX(0); }
+  }
+
+  /* ── Mode Screen ── */
+  .back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.78rem;
+    color: var(--muted);
+    cursor: pointer;
+    margin-bottom: 1.5rem;
+    background: none;
+    border: none;
+    font-family: 'Inter', sans-serif;
+    transition: color 0.15s;
+    padding: 0.3rem 0;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .back-btn:hover { color: var(--text); }
+
+  .mode-heading {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(1.05rem, 4vw, 1.3rem);
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+  }
+  .mode-heading span { color: var(--accent); }
+  .mode-sub { font-size: 0.78rem; color: var(--muted); margin-bottom: 1.4rem; }
+
+  .mode-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    max-width: 480px;
+  }
+
+  .mode-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 1.6rem 1rem;
+    text-align: center;
+    text-decoration: none;
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .mode-card:active { transform: scale(0.97); }
+
+  .mode-card.online  { border-top: 2px solid var(--online); }
+  .mode-card.offline { border-top: 2px solid var(--offline); }
+  .mode-card.online:hover  { border-color: var(--online); box-shadow: 0 0 24px rgba(34,211,238,0.15); }
+  .mode-card.offline:hover { border-color: var(--offline); box-shadow: 0 0 24px rgba(167,139,250,0.15); }
+
+  .mode-icon { font-size: 2rem; margin-bottom: 0.65rem; }
+  @media (min-width: 600px) { .mode-icon { font-size: 2.3rem; } }
+
+  .mode-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+  }
+  .mode-card.online  .mode-label { color: var(--online); }
+  .mode-card.offline .mode-label { color: var(--offline); }
+
+  .mode-desc { font-size: 0.7rem; color: var(--muted); margin-top: 0.3rem; }
+
+  /* ── Encryption notice ── */
+  .enc-notice {
+    margin-top: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    font-size: 0.7rem;
+    color: var(--muted);
+    text-align: center;
+    position: relative;
+    z-index: 1;
+    padding: 0.5rem 1rem;
+    border: 1px solid rgba(249,115,22,0.12);
+    border-radius: 999px;
+    background: rgba(249,115,22,0.04);
+    max-width: 360px;
+  }
+  .enc-icon { font-size: 0.85rem; flex-shrink: 0; }
+
+  /* ── Footer ── */
+  .footer {
+    margin-top: 2.5rem;
+    font-size: 0.65rem;
+    color: var(--muted);
+    text-align: center;
+    position: relative;
+    z-index: 1;
+  }
 </style>
 </head>
 <body>
 
-<div class="phone-wrap">
-  <div class="phone">
-    <div class="side-btn"></div>
-    <div class="phone-inner">
+<!-- Brand -->
+<div class="brand">
+  <div class="logo-wrap">
+    <img
+      src="https://static.vecteezy.com/system/resources/thumbnails/045/720/728/small_2x/dark-cat-head-free-png.png"
+      alt="Cloud Fox"
+      onerror="this.style.display='none'; this.parentNode.innerHTML='🦊';"
+    />
+  </div>
+  <div class="brand-name"><span class="cloud">Cloud</span><span class="fox">Fox</span></div>
+  <div class="by-line">by <span>Veera Cloud</span></div>
+</div>
 
-      <!-- Status Bar -->
-      <div class="notch-bar">
-        <span class="status-time" id="clock">9:41</span>
-        <div class="notch-pill"></div>
-        <div class="status-icons">
-          <i class="ti ti-wifi" id="sb-wifi"></i>
-          <i class="ti ti-bluetooth" id="sb-bt"></i>
-          <i class="ti ti-battery-3"></i>
-        </div>
+<!-- Header -->
+<div class="header">
+  <h1 id="main-title">Select Your Batch</h1>
+  <p id="main-sub">Choose the timing that works for you.</p>
+</div>
+
+<!-- Screen 1: Batches -->
+<div class="screen active" id="screen-batch">
+  <div class="batch-grid">
+    <div class="batch-card" onclick="selectBatch('7:30 AM')">
+      <div class="batch-badge">🌅</div>
+      <div class="batch-info">
+        <div class="batch-time">7:30 AM</div>
+        <div class="batch-sub">Morning Batch</div>
       </div>
-
-      <div class="screen">
-
-        <!-- Quick Settings -->
-        <div class="qs-grid">
-          <div class="qt" id="qt-wifi" onclick="toggleQT('wifi')" role="button" aria-label="WiFi">
-            <div class="qt-icon"><i class="ti ti-wifi"></i></div>
-            <div class="qt-label">WiFi</div>
-          </div>
-          <div class="qt" id="qt-bt" onclick="toggleQT('bt')" role="button" aria-label="Bluetooth">
-            <div class="qt-icon"><i class="ti ti-bluetooth"></i></div>
-            <div class="qt-label">Bluetooth</div>
-          </div>
-          <div class="qt" id="qt-loc" onclick="requestLoc()" role="button" aria-label="Location">
-            <div class="qt-icon"><i class="ti ti-map-pin"></i></div>
-            <div class="qt-label">Location</div>
-          </div>
-          <div class="qt" id="qt-touch" onclick="toggleSection('sec-touch')" role="button" aria-label="Touch">
-            <div class="qt-icon"><i class="ti ti-hand-finger"></i></div>
-            <div class="qt-label">Touch</div>
-          </div>
-          <div class="qt" id="qt-vib" onclick="toggleSection('sec-vib')" role="button" aria-label="Vibrate">
-            <div class="qt-icon"><i class="ti ti-wave-sine"></i></div>
-            <div class="qt-label">Vibrate</div>
-          </div>
-          <div class="qt" id="qt-file" onclick="toggleSection('sec-file')" role="button" aria-label="Files">
-            <div class="qt-icon"><i class="ti ti-folder"></i></div>
-            <div class="qt-label">Files</div>
-          </div>
-          <div class="qt off" id="qt-nfc" role="button" aria-label="NFC">
-            <div class="qt-icon"><i class="ti ti-antenna"></i></div>
-            <div class="qt-label">NFC</div>
-          </div>
-          <div class="qt off" id="qt-refresh" onclick="refreshInfo()" role="button" aria-label="Refresh">
-            <div class="qt-icon"><i class="ti ti-refresh"></i></div>
-            <div class="qt-label">Refresh</div>
-          </div>
-        </div>
-
-        <div class="divider"></div>
-
-        <!-- Device Info -->
-        <div class="section-label">Device info</div>
-        <div class="info-card">
-          <div class="info-row">
-            <span class="info-key"><i class="ti ti-browser"></i>Browser</span>
-            <span class="info-val" id="d-browser">—</span>
-          </div>
-          <div class="info-row">
-            <span class="info-key"><i class="ti ti-device-mobile"></i>Platform</span>
-            <span class="info-val" id="d-platform">—</span>
-          </div>
-          <div class="info-row">
-            <span class="info-key"><i class="ti ti-wifi"></i>Network</span>
-            <span class="info-val" id="d-net">—</span>
-          </div>
-          <div class="info-row">
-            <span class="info-key"><i class="ti ti-gauge"></i>Speed</span>
-            <span class="info-val blue" id="d-speed">—</span>
-          </div>
-          <div class="info-row">
-            <span class="info-key"><i class="ti ti-globe"></i>Language</span>
-            <span class="info-val" id="d-lang">—</span>
-          </div>
-          <div class="info-row">
-            <span class="info-key"><i class="ti ti-maximize"></i>Screen</span>
-            <span class="info-val" id="d-screen">—</span>
-          </div>
-          <div class="info-row">
-            <span class="info-key"><i class="ti ti-hand-two-fingers"></i>Touch pts</span>
-            <span class="info-val green" id="d-touch">—</span>
-          </div>
-        </div>
-
-        <div class="divider"></div>
-
-        <!-- Touch Tracker -->
-        <div id="sec-touch">
-          <div class="section-label">Touch tracker</div>
-          <div class="touch-zone">
-            <div class="touch-header">
-              <span class="touch-title"><i class="ti ti-hand-finger"></i>Multi-touch pad</span>
-              <span class="touch-count" id="touch-count">0 fingers</span>
-            </div>
-            <div class="touch-pad" id="touch-pad"
-              ontouchstart="handleTouch(event)"
-              ontouchmove="handleTouch(event)"
-              ontouchend="handleTouch(event)"
-              ontouchcancel="handleTouch(event)"
-              onmousedown="handleMouse(event,'start')"
-              onmousemove="handleMouse(event,'move')"
-              onmouseup="handleMouse(event,'end')"
-              onmouseleave="handleMouse(event,'end')">
-              <div class="touch-hint" id="touch-hint">
-                <i class="ti ti-hand-finger" style="font-size:18px;display:block;margin-bottom:4px;color:#1e1e38"></i>
-                Tap or drag here<br>
-                <span style="font-size:9px;color:#1a1a2a">Supports multi-touch</span>
-              </div>
-            </div>
-            <div class="touch-tags">
-              <div class="ttag" id="tt-tap">tap</div>
-              <div class="ttag" id="tt-swipe">swipe</div>
-              <div class="ttag" id="tt-pinch">pinch</div>
-              <div class="ttag" id="tt-hold">hold</div>
-              <div class="ttag" id="tt-multi">multi</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="divider"></div>
-
-        <!-- Vibration -->
-        <div id="sec-vib">
-          <div class="section-label">Vibration</div>
-          <div class="vib-row">
-            <div class="vib-btn" id="vb1" onclick="doVib([60],'vb1')">
-              <i class="ti ti-wave-sine"></i><span>Tap</span>
-            </div>
-            <div class="vib-btn" id="vb2" onclick="doVib([200],'vb2')">
-              <i class="ti ti-wave-sine"></i><span>Short</span>
-            </div>
-            <div class="vib-btn" id="vb3" onclick="doVib([600],'vb3')">
-              <i class="ti ti-wave-saw-tool"></i><span>Long</span>
-            </div>
-            <div class="vib-btn" id="vb4" onclick="doVib([100,80,100,80,100],'vb4')">
-              <i class="ti ti-wave-saw-tool"></i><span>Pattern</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="divider"></div>
-
-        <!-- Location -->
-        <div class="section-label">Location</div>
-        <div class="loc-card">
-          <div class="loc-header">
-            <span style="font-size:11px;color:#555;display:flex;align-items:center;gap:5px">
-              <i class="ti ti-map-pin" style="font-size:13px"></i>
-              <span id="loc-status">Not located</span>
-            </span>
-            <button class="loc-get-btn" onclick="requestLoc()">
-              <i class="ti ti-current-location"></i>Locate
-            </button>
-          </div>
-          <div class="loc-pills">
-            <div class="lpill" id="lp-lat">lat —</div>
-            <div class="lpill" id="lp-lng">lng —</div>
-            <div class="lpill" id="lp-acc">acc —</div>
-          </div>
-          <div class="loc-map" id="loc-map">
-            <div class="loc-map-hint">tap Locate to get position</div>
-          </div>
-        </div>
-
-        <div class="divider"></div>
-
-        <!-- File Access -->
-        <div id="sec-file">
-          <div class="section-label">File access</div>
-          <div class="file-card">
-            <div class="file-toolbar">
-              <div class="fbtn" onclick="openFolder()"><i class="ti ti-folder-open"></i>Folder</div>
-              <div class="fbtn" onclick="openFile()"><i class="ti ti-file"></i>File</div>
-              <div class="fbtn" onclick="document.getElementById('fi').click()"><i class="ti ti-upload"></i>Upload</div>
-            </div>
-            <div class="flist" id="file-list">
-              <div class="file-empty">
-                <i class="ti ti-folder-off"></i>
-                No files loaded
-              </div>
-            </div>
-            <div class="drop-zone" id="drop-z" onclick="document.getElementById('fi').click()">
-              <i class="ti ti-upload"></i>Tap to pick files / drag & drop
-            </div>
-            <input type="file" id="fi" multiple style="display:none" onchange="handleFiles(this)">
-            <div class="fprev" id="fprev"></div>
-          </div>
-        </div>
-
+      <div class="batch-chevron">›</div>
+    </div>
+    <div class="batch-card" onclick="selectBatch('9:00 AM')">
+      <div class="batch-badge">☀️</div>
+      <div class="batch-info">
+        <div class="batch-time">9:00 AM</div>
+        <div class="batch-sub">Morning Batch</div>
       </div>
-      <div class="home-indicator"><div class="home-bar"></div></div>
+      <div class="batch-chevron">›</div>
+    </div>
+    <div class="batch-card" onclick="selectBatch('10:30 AM')">
+      <div class="batch-badge">🌤️</div>
+      <div class="batch-info">
+        <div class="batch-time">10:30 AM</div>
+        <div class="batch-sub">Late Morning</div>
+      </div>
+      <div class="batch-chevron">›</div>
     </div>
   </div>
 </div>
 
+<!-- Screen 2: Mode -->
+<div class="screen" id="screen-mode">
+  <button class="back-btn" onclick="goBack()">‹ Back to batches</button>
+  <div class="mode-heading">Batch: <span id="selected-batch"></span></div>
+  <div class="mode-sub">How do you want to attend?</div>
+  <div class="mode-grid">
+    <a class="mode-card online" id="link-online" href="#">
+      <div class="mode-icon">💻</div>
+      <div class="mode-label">Online</div>
+      <div class="mode-desc">Attend from anywhere</div>
+    </a>
+    <a class="mode-card offline" id="link-offline" href="#">
+      <div class="mode-icon">🏫</div>
+      <div class="mode-label">Offline</div>
+      <div class="mode-desc">Attend at center</div>
+    </a>
+  </div>
+</div>
+
+<div class="footer">© 2026 Cloud Fox by Veera Cloud. All rights reserved.</div>
+
+<div class="enc-notice">
+  <span class="enc-icon">🔒</span>
+  Your chats are end-to-end encrypted — even Veera Cloud cannot read them.
+</div>
+
 <script>
-const STATE = { wifi:true, bt:false, loc:false, touch:true, vib:true, file:true };
+  const paths = {
+    '7:30 AM':  { online: './730am-online.html',  offline: './730am-offline.html'  },
+    '9:00 AM':  { online: './900am-online.html',  offline: './900am-offline.html'  },
+    '10:30 AM': { online: './1030am-online.html', offline: './1030am-offline.html' },
+  };
 
-function updateClock() {
-  const n = new Date();
-  const el = document.getElementById('clock');
-  if (el) el.textContent = String(n.getHours()).padStart(2,'0') + ':' + String(n.getMinutes()).padStart(2,'0');
-}
-setInterval(updateClock, 5000);
-updateClock();
-
-function applyQT(key, val) {
-  const el = document.getElementById('qt-' + key);
-  if (!el) return;
-  el.className = 'qt ' + (val ? 'on' : 'off');
-  if (key === 'wifi') { const s = document.getElementById('sb-wifi'); if (s) s.style.opacity = val ? '1' : '0.3'; }
-  if (key === 'bt')   { const s = document.getElementById('sb-bt');   if (s) s.style.opacity = val ? '1' : '0.3'; }
-}
-
-function toggleQT(key) {
-  STATE[key] = !STATE[key];
-  applyQT(key, STATE[key]);
-  if (key === 'wifi') refreshInfo();
-  if (key === 'bt') loadBT();
-}
-
-function toggleSection(secId) {
-  const key = secId.replace('sec-','');
-  STATE[key] = !STATE[key];
-  applyQT(key, STATE[key]);
-  const sec = document.getElementById(secId);
-  if (sec) sec.style.display = STATE[key] ? 'block' : 'none';
-}
-
-function set(id, v) { const e = document.getElementById(id); if (e) e.textContent = v; }
-
-function refreshInfo() {
-  const ua = navigator.userAgent;
-  let br = 'Unknown';
-  if (/Edg\//.test(ua))                       br = 'Edge ' + ((ua.match(/Edg\/([\d]+)/)  ||[])[1]||'');
-  else if (/Chrome\//.test(ua))               br = 'Chrome ' + ((ua.match(/Chrome\/([\d]+)/)  ||[])[1]||'');
-  else if (/Firefox\//.test(ua))              br = 'Firefox ' + ((ua.match(/Firefox\/([\d]+)/)||[])[1]||'');
-  else if (/Safari\//.test(ua)&&!/Chrome/.test(ua)) br = 'Safari';
-
-  let pl = navigator.platform || '';
-  if      (/Win/.test(pl))              pl = 'Windows';
-  else if (/Mac/.test(pl))              pl = 'macOS';
-  else if (/iPhone|iPad/.test(ua))      pl = 'iOS';
-  else if (/Android/.test(ua))          pl = 'Android';
-  else if (/Linux/.test(pl))            pl = 'Linux';
-
-  const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-  const online = navigator.onLine;
-  const netEl = document.getElementById('d-net');
-  if (netEl) {
-    netEl.textContent = online ? (conn && conn.effectiveType ? conn.effectiveType.toUpperCase() : 'Online') : 'Offline';
-    netEl.className = 'info-val ' + (online ? 'green' : 'red');
-  }
-  if (conn) {
-    const parts = [];
-    if (conn.downlink) parts.push(conn.downlink + ' Mbps');
-    if (conn.rtt)      parts.push(conn.rtt + 'ms RTT');
-    set('d-speed', parts.join(' · ') || '—');
-  } else { set('d-speed', '—'); }
-
-  const tp = navigator.maxTouchPoints || 0;
-  set('d-browser', br);
-  set('d-platform', pl);
-  set('d-lang', navigator.language || '—');
-  set('d-screen', window.screen ? screen.width + '×' + screen.height : '—');
-  const tEl = document.getElementById('d-touch');
-  if (tEl) { tEl.textContent = tp > 0 ? tp + ' points' : 'Not supported'; tEl.className = 'info-val ' + (tp > 0 ? 'green' : 'red'); }
-
-  applyQT('wifi', online);
-  STATE.wifi = online;
-  loadBT();
-}
-
-async function loadBT() {
-  if (!navigator.bluetooth) { applyQT('bt', false); return; }
-  try { const a = await navigator.bluetooth.getAvailability(); STATE.bt = a; applyQT('bt', a); }
-  catch (e) { applyQT('bt', false); }
-}
-
-function requestLoc() {
-  const st = document.getElementById('loc-status');
-  const qt = document.getElementById('qt-loc');
-  if (st) st.textContent = 'Locating…';
-  if (qt) qt.className = 'qt warn';
-  if (!navigator.geolocation) { if (st) st.textContent = 'Not supported'; return; }
-  navigator.geolocation.getCurrentPosition(pos => {
-    const lat = pos.coords.latitude.toFixed(5);
-    const lng = pos.coords.longitude.toFixed(5);
-    const acc = Math.round(pos.coords.accuracy || 0);
-    if (st) st.textContent = 'Located ±' + acc + 'm';
-    if (qt) qt.className = 'qt on';
-    STATE.loc = true;
-    const lpl = document.getElementById('lp-lat');
-    const lpn = document.getElementById('lp-lng');
-    const lpa = document.getElementById('lp-acc');
-    if (lpl) { lpl.textContent = 'lat ' + lat; lpl.className = 'lpill active'; }
-    if (lpn) { lpn.textContent = 'lng ' + lng; lpn.className = 'lpill active'; }
-    if (lpa) { lpa.textContent = '±' + acc + 'm'; lpa.className = 'lpill active'; }
-    const map = document.getElementById('loc-map');
-    if (map) {
-      map.innerHTML = '<svg width="100%" height="100" viewBox="0 0 320 100" xmlns="http://www.w3.org/2000/svg">' +
-        '<rect width="320" height="100" fill="#0d0d14"/>' +
-        '<line x1="0" y1="50" x2="320" y2="50" stroke="#1a1a2e" stroke-width="0.5"/>' +
-        '<line x1="160" y1="0" x2="160" y2="100" stroke="#1a1a2e" stroke-width="0.5"/>' +
-        '<circle cx="160" cy="50" r="24" fill="#1a73e8" fill-opacity="0.12"/>' +
-        '<circle cx="160" cy="50" r="11" fill="#1a73e8" fill-opacity="0.28"/>' +
-        '<circle cx="160" cy="50" r="5" fill="#60a5fa"/>' +
-        '<circle cx="160" cy="50" r="3" fill="#fff"/>' +
-        '<text x="167" y="36" font-size="8" fill="#60a5fa" font-family="monospace">' + lat + ', ' + lng + '</text>' +
-        '</svg>';
-    }
-  }, err => {
-    const msgs = { 1:'Permission denied', 2:'Unavailable', 3:'Timed out' };
-    if (st) st.textContent = msgs[err.code] || 'Error';
-    if (qt) qt.className = 'qt warn';
-  }, { enableHighAccuracy: true, timeout: 10000 });
-}
-
-/* ---- TOUCH TRACKER ---- */
-const touchDots = {};
-let mouseDown = false, touchStartPos = null, holdTimer = null;
-
-function clearTag(id) { const e = document.getElementById('tt-' + id); if (e) e.className = 'ttag'; }
-function setTag(id) {
-  const e = document.getElementById('tt-' + id);
-  if (e) { e.className = 'ttag active'; setTimeout(() => { e.className = 'ttag'; }, 900); }
-}
-
-const DOT_COLORS = ['#1a73e8','#f59e0b','#4ade80','#f87171','#c084fc'];
-
-function placeDot(pad, id, x, y, idx) {
-  let dot = document.getElementById('td-' + id);
-  if (!dot) {
-    dot = document.createElement('div');
-    dot.className = 'touch-dot';
-    dot.id = 'td-' + id;
-    const num = document.createElement('div');
-    num.className = 'touch-num';
-    num.textContent = (idx + 1);
-    dot.appendChild(num);
-    pad.appendChild(dot);
-  }
-  const c = DOT_COLORS[idx % DOT_COLORS.length];
-  dot.style.left = x + 'px';
-  dot.style.top  = y + 'px';
-  dot.style.opacity = '1';
-  dot.style.borderColor = c;
-  dot.querySelector('.touch-num').style.background = c;
-}
-
-function removeDot(pad, id) {
-  const dot = document.getElementById('td-' + id);
-  if (dot) { dot.style.opacity = '0'; setTimeout(() => { try { pad.removeChild(dot); } catch(e){} }, 250); }
-  delete touchDots[id];
-}
-
-function handleTouch(e) {
-  e.preventDefault();
-  const pad = document.getElementById('touch-pad');
-  const rect = pad.getBoundingClientRect();
-  const hint = document.getElementById('touch-hint');
-  const cnt  = document.getElementById('touch-count');
-
-  if (e.type === 'touchstart' || e.type === 'touchmove') {
-    if (hint) hint.style.display = 'none';
-    for (let i = 0; i < e.touches.length; i++) {
-      const t = e.touches[i];
-      placeDot(pad, t.identifier, t.clientX - rect.left, t.clientY - rect.top, i);
-      touchDots[t.identifier] = true;
-    }
-    if (cnt) cnt.textContent = e.touches.length + ' finger' + (e.touches.length !== 1 ? 's' : '');
+  function selectBatch(batch) {
+    document.getElementById('selected-batch').textContent = batch;
+    document.getElementById('link-online').href  = paths[batch].online;
+    document.getElementById('link-offline').href = paths[batch].offline;
+    document.getElementById('screen-batch').classList.remove('active');
+    document.getElementById('screen-mode').classList.add('active');
+    document.getElementById('main-title').textContent = 'Choose Mode';
+    document.getElementById('main-sub').textContent = 'Pick how you want to attend.';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  if (e.type === 'touchstart') {
-    clearTimeout(holdTimer);
-    touchStartPos = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-    if (e.touches.length >= 2) setTag('pinch');
-    if (e.touches.length >= 3) setTag('multi');
-    holdTimer = setTimeout(() => setTag('hold'), 650);
+  function goBack() {
+    document.getElementById('screen-mode').classList.remove('active');
+    document.getElementById('screen-batch').classList.add('active');
+    document.getElementById('main-title').textContent = 'Select Your Batch';
+    document.getElementById('main-sub').textContent = 'Choose the timing that works for you.';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
-  if (e.type === 'touchmove') {
-    clearTimeout(holdTimer);
-    if (touchStartPos) {
-      const dx = e.touches[0].clientX - touchStartPos.x;
-      const dy = e.touches[0].clientY - touchStartPos.y;
-      if (Math.sqrt(dx*dx + dy*dy) > 12) setTag('swipe');
-    }
-    if (e.touches.length >= 2) setTag('pinch');
-  }
-  if (e.type === 'touchend' || e.type === 'touchcancel') {
-    clearTimeout(holdTimer);
-    for (let i = 0; i < e.changedTouches.length; i++) removeDot(pad, e.changedTouches[i].identifier);
-    if (cnt) cnt.textContent = e.touches.length + ' finger' + (e.touches.length !== 1 ? 's' : '');
-    if (e.type === 'touchend' && e.changedTouches.length === 1 && e.touches.length === 0 && touchStartPos) {
-      const dx = e.changedTouches[0].clientX - touchStartPos.x;
-      const dy = e.changedTouches[0].clientY - touchStartPos.y;
-      if (Math.sqrt(dx*dx + dy*dy) < 10) setTag('tap');
-      touchStartPos = null;
-    }
-    if (e.touches.length === 0 && hint) setTimeout(() => { if (Object.keys(touchDots).length === 0) hint.style.display = ''; }, 500);
-  }
-}
-
-function handleMouse(e, type) {
-  const pad  = document.getElementById('touch-pad');
-  const hint = document.getElementById('touch-hint');
-  const cnt  = document.getElementById('touch-count');
-  const rect = pad.getBoundingClientRect();
-  if (type === 'start') {
-    mouseDown = true;
-    touchStartPos = { x: e.clientX, y: e.clientY };
-    if (hint) hint.style.display = 'none';
-    holdTimer = setTimeout(() => setTag('hold'), 650);
-    placeDot(pad, 'mouse', e.clientX - rect.left, e.clientY - rect.top, 0);
-    if (cnt) cnt.textContent = '1 finger';
-  }
-  if (type === 'move' && mouseDown) {
-    clearTimeout(holdTimer);
-    const dot = document.getElementById('td-mouse');
-    if (dot) { dot.style.left = (e.clientX - rect.left) + 'px'; dot.style.top = (e.clientY - rect.top) + 'px'; }
-    if (touchStartPos) { const dx = e.clientX - touchStartPos.x, dy = e.clientY - touchStartPos.y; if (Math.sqrt(dx*dx+dy*dy) > 12) setTag('swipe'); }
-  }
-  if (type === 'end' && mouseDown) {
-    mouseDown = false;
-    clearTimeout(holdTimer);
-    if (touchStartPos) {
-      const dx = e.clientX - touchStartPos.x, dy = e.clientY - touchStartPos.y;
-      if (Math.sqrt(dx*dx + dy*dy) < 10) setTag('tap');
-      touchStartPos = null;
-    }
-    removeDot(pad, 'mouse');
-    if (cnt) cnt.textContent = '0 fingers';
-    if (hint) setTimeout(() => { hint.style.display = ''; }, 500);
-  }
-}
-
-/* ---- VIBRATION ---- */
-function doVib(pat, id) {
-  if ('vibrate' in navigator) navigator.vibrate(pat);
-  const btn = document.getElementById(id);
-  if (btn) {
-    btn.className = 'vib-btn pulse';
-    setTimeout(() => { btn.className = 'vib-btn'; }, pat.reduce((a, b) => a + b, 0) + 120);
-  }
-}
-
-/* ---- FILES ---- */
-function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function fmtB(b) { if (b < 1024) return b + 'B'; if (b < 1048576) return (b/1024).toFixed(1) + 'KB'; return (b/1048576).toFixed(1) + 'MB'; }
-function fileIcon(n) {
-  const e = (n.split('.').pop() || '').toLowerCase();
-  const m = { jpg:'ti-photo',jpeg:'ti-photo',png:'ti-photo',gif:'ti-photo',webp:'ti-photo',svg:'ti-vector',pdf:'ti-file-type-pdf',mp4:'ti-video',mov:'ti-video',mp3:'ti-music',wav:'ti-music',zip:'ti-file-zip',rar:'ti-file-zip',js:'ti-brand-javascript',ts:'ti-brand-typescript',py:'ti-brand-python',html:'ti-brand-html5',css:'ti-file-type-css',json:'ti-braces',md:'ti-markdown',txt:'ti-file-text',csv:'ti-table' };
-  return m[e] || 'ti-file';
-}
-async function openFolder() {
-  if (!window.showDirectoryPicker) { alert('Folder access needs Chrome or Edge desktop.'); return; }
-  try {
-    const h = await window.showDirectoryPicker();
-    const list = document.getElementById('file-list'); list.innerHTML = '';
-    let n = 0;
-    for await (const [name, entry] of h.entries()) {
-      if (n++ > 80) break;
-      const isD = entry.kind === 'directory';
-      const item = document.createElement('div'); item.className = 'fitem';
-      item.innerHTML = '<i class="ti ' + (isD ? 'ti-folder' : fileIcon(name)) + '" style="color:' + (isD ? '#60a5fa' : '#444') + '"></i><span class="fitem-name">' + esc(name) + '</span><span class="fitem-size">' + (isD ? 'folder' : '') + '</span>';
-      if (!isD) item.onclick = async () => { try { const f = await entry.getFile(); previewF(f); } catch(ex){} };
-      list.appendChild(item);
-    }
-    if (n === 0) list.innerHTML = '<div class="file-empty"><i class="ti ti-mood-empty"></i>Empty folder</div>';
-  } catch(ex) { if (ex.name !== 'AbortError') alert('Error: ' + ex.message); }
-}
-async function openFile() {
-  if (!window.showOpenFilePicker) { document.getElementById('fi').click(); return; }
-  try { const [h] = await window.showOpenFilePicker({ multiple: false }); const f = await h.getFile(); renderFiles([f]); previewF(f); } catch(ex) {}
-}
-function handleFiles(inp) { const fs = Array.from(inp.files); if (!fs.length) return; renderFiles(fs); if (fs.length === 1) previewF(fs[0]); }
-function renderFiles(files) {
-  const list = document.getElementById('file-list'); list.innerHTML = '';
-  files.forEach(f => {
-    const item = document.createElement('div'); item.className = 'fitem';
-    item.innerHTML = '<i class="ti ' + fileIcon(f.name) + '" style="color:#444"></i><span class="fitem-name">' + esc(f.name) + '</span><span class="fitem-size">' + fmtB(f.size) + '</span>';
-    item.onclick = () => previewF(f);
-    list.appendChild(item);
-  });
-}
-function previewF(f) {
-  const prev = document.getElementById('fprev'); prev.innerHTML = '';
-  const ext = (f.name.split('.').pop() || '').toLowerCase();
-  const isImg = ['jpg','jpeg','png','gif','webp','svg'].includes(ext);
-  const isTxt = ['txt','md','json','js','ts','py','css','html','csv','log','yaml','sh'].includes(ext);
-  const label = '<div class="fprev-label">' + esc(f.name) + ' · ' + fmtB(f.size) + '</div>';
-  if (isImg) {
-    const url = URL.createObjectURL(f);
-    prev.innerHTML = label + '<img src="' + url + '" onload="URL.revokeObjectURL(this.src)">';
-  } else if (isTxt && f.size < 200000) {
-    const r = new FileReader();
-    r.onload = e => { prev.innerHTML = label + '<pre>' + esc(e.target.result.slice(0, 2000)) + (e.target.result.length > 2000 ? '\n…' : '') + '</pre>'; };
-    r.readAsText(f);
-  } else {
-    prev.innerHTML = label + '<div style="font-size:10px;color:#333;padding:4px 0">No preview available</div>';
-  }
-}
-const dz = document.getElementById('drop-z');
-if (dz) {
-  dz.addEventListener('dragover', e => { e.preventDefault(); dz.style.background = '#0d0d20'; });
-  dz.addEventListener('dragleave', () => { dz.style.background = ''; });
-  dz.addEventListener('drop', e => { e.preventDefault(); dz.style.background = ''; const fs = Array.from(e.dataTransfer.files); if (fs.length) { renderFiles(fs); if (fs.length === 1) previewF(fs[0]); } });
-}
-
-/* ---- INIT ---- */
-applyQT('wifi', true); applyQT('bt', false); applyQT('loc', false);
-applyQT('touch', true); applyQT('vib', true); applyQT('file', true);
-refreshInfo();
 </script>
 </body>
 </html>
