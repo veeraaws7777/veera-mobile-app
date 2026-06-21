@@ -1,0 +1,440 @@
+
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans); }
+.dashboard { padding: 1rem 0; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 12px; }
+.card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; }
+.card-label { font-size: 12px; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+.card-value { font-size: 18px; font-weight: 500; color: var(--color-text-primary); word-break: break-all; }
+.card-sub { font-size: 12px; color: var(--color-text-secondary); margin-top: 4px; }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.dot-on { background: #3B6D11; }
+.dot-off { background: #A32D2D; }
+.dot-unknown { background: #888780; }
+.badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: var(--border-radius-md); font-size: 12px; font-weight: 500; }
+.badge-success { background: #EAF3DE; color: #27500A; }
+.badge-danger { background: #FCEBEB; color: #791F1F; }
+.badge-warn { background: #FAEEDA; color: #633806; }
+.badge-info { background: #E6F1FB; color: #0C447C; }
+.section-title { font-size: 13px; font-weight: 500; color: var(--color-text-secondary); margin: 1rem 0 8px; display: flex; align-items: center; gap: 6px; }
+.file-browser { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); overflow: hidden; }
+.file-toolbar { padding: 10px 14px; border-bottom: 0.5px solid var(--color-border-tertiary); display: flex; align-items: center; gap: 8px; background: var(--color-background-secondary); }
+.path-bar { flex: 1; font-size: 13px; color: var(--color-text-secondary); font-family: var(--font-mono); background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 4px 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.file-list { max-height: 220px; overflow-y: auto; }
+.file-item { display: flex; align-items: center; gap: 10px; padding: 8px 14px; border-bottom: 0.5px solid var(--color-border-tertiary); cursor: pointer; font-size: 13px; }
+.file-item:hover { background: var(--color-background-secondary); }
+.file-item:last-child { border-bottom: none; }
+.file-name { flex: 1; color: var(--color-text-primary); }
+.file-size { color: var(--color-text-secondary); font-size: 12px; font-family: var(--font-mono); }
+.file-type-icon { font-size: 16px; }
+.action-btn { display: inline-flex; align-items: center; gap: 4px; padding: 5px 10px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: transparent; color: var(--color-text-primary); font-size: 12px; cursor: pointer; }
+.action-btn:hover { background: var(--color-background-secondary); }
+.loc-map { border-radius: var(--border-radius-md); background: var(--color-background-secondary); height: 90px; display: flex; align-items: center; justify-content: center; margin-top: 8px; font-size: 12px; color: var(--color-text-secondary); border: 0.5px solid var(--color-border-tertiary); position: relative; overflow: hidden; }
+.loc-pin { font-size: 22px; position: absolute; }
+.spinner { animation: spin 1s linear infinite; display: inline-block; }
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.refresh-btn { padding: 4px 8px; }
+.empty-state { text-align: center; padding: 2rem; color: var(--color-text-secondary); font-size: 13px; }
+.coord-row { display: flex; gap: 8px; margin-top: 6px; }
+.coord-pill { flex: 1; background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 4px 8px; font-size: 12px; font-family: var(--font-mono); color: var(--color-text-secondary); text-align: center; }
+.upload-zone { border: 1px dashed var(--color-border-secondary); border-radius: var(--border-radius-md); padding: 16px; text-align: center; font-size: 13px; color: var(--color-text-secondary); cursor: pointer; margin-top: 8px; }
+.upload-zone:hover { background: var(--color-background-secondary); }
+</style>
+
+<h2 class="sr-only">Device information dashboard showing location, app info, vibration, WiFi, Bluetooth, and file browser</h2>
+
+<div class="dashboard">
+
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+    <i class="ti ti-device-mobile" style="font-size:20px;color:var(--color-text-secondary)" aria-hidden="true"></i>
+    <span style="font-size:16px;font-weight:500;color:var(--color-text-primary)">Device dashboard</span>
+    <span id="last-refresh" style="margin-left:auto;font-size:12px;color:var(--color-text-secondary)"></span>
+    <button class="action-btn refresh-btn" onclick="refreshAll()"><i class="ti ti-refresh" aria-hidden="true"></i> Refresh</button>
+  </div>
+
+  <div class="grid">
+
+    <!-- App Info -->
+    <div class="card">
+      <div class="card-label"><i class="ti ti-info-circle" aria-hidden="true"></i> App / Browser</div>
+      <div class="card-value" id="app-name" style="font-size:14px">—</div>
+      <div class="card-sub" id="app-version"></div>
+      <div class="card-sub" id="app-platform" style="margin-top:4px"></div>
+      <div class="card-sub" id="app-lang"></div>
+    </div>
+
+    <!-- WiFi -->
+    <div class="card">
+      <div class="card-label"><i class="ti ti-wifi" aria-hidden="true"></i> WiFi</div>
+      <div id="wifi-status-badge" style="margin-bottom:6px"></div>
+      <div class="card-value" id="wifi-name" style="font-size:14px">—</div>
+      <div class="card-sub" id="wifi-type"></div>
+      <div class="card-sub" id="wifi-speed" style="margin-top:2px"></div>
+    </div>
+
+    <!-- Bluetooth -->
+    <div class="card">
+      <div class="card-label"><i class="ti ti-bluetooth" aria-hidden="true"></i> Bluetooth</div>
+      <div id="bt-badge" style="margin-bottom:6px"></div>
+      <div class="card-value" id="bt-status" style="font-size:14px">—</div>
+      <div id="bt-devices" class="card-sub" style="margin-top:4px"></div>
+      <button class="action-btn" id="bt-scan-btn" onclick="scanBluetooth()" style="margin-top:8px;font-size:11px;display:none">
+        <i class="ti ti-bluetooth-connected" aria-hidden="true"></i> Scan devices
+      </button>
+    </div>
+
+    <!-- Vibration -->
+    <div class="card">
+      <div class="card-label"><i class="ti ti-wave-sine" aria-hidden="true"></i> Vibration</div>
+      <div id="vib-support" style="margin-bottom:6px"></div>
+      <div class="card-value" id="vib-status" style="font-size:14px">—</div>
+      <div style="display:flex;flex-direction:column;gap:6px;margin-top:10px">
+        <button class="action-btn" onclick="doVibrate([200])" style="font-size:11px"><i class="ti ti-wave-sine" aria-hidden="true"></i> Short buzz</button>
+        <button class="action-btn" onclick="doVibrate([100,50,100,50,300])" style="font-size:11px"><i class="ti ti-wave-saw-tool" aria-hidden="true"></i> Pattern buzz</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Location -->
+  <div class="section-title"><i class="ti ti-map-pin" aria-hidden="true"></i> Location</div>
+  <div class="card" style="margin-bottom:12px">
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+      <div id="loc-badge"></div>
+      <button class="action-btn" onclick="getLocation()" style="font-size:11px"><i class="ti ti-current-location" aria-hidden="true"></i> Get location</button>
+      <div id="loc-accuracy" style="font-size:12px;color:var(--color-text-secondary)"></div>
+    </div>
+    <div class="coord-row" id="coord-row" style="display:none">
+      <div class="coord-pill" id="lat-pill">lat —</div>
+      <div class="coord-pill" id="lng-pill">lng —</div>
+      <div class="coord-pill" id="alt-pill">alt —</div>
+    </div>
+    <div class="loc-map" id="loc-map">
+      <span id="loc-map-text" style="font-size:12px;color:var(--color-text-secondary)">Press "Get location" to show position</span>
+    </div>
+  </div>
+
+  <!-- File Browser -->
+  <div class="section-title"><i class="ti ti-folder-open" aria-hidden="true"></i> File access</div>
+  <div class="file-browser">
+    <div class="file-toolbar">
+      <i class="ti ti-folder" style="color:var(--color-text-secondary);font-size:16px" aria-hidden="true"></i>
+      <div class="path-bar" id="path-bar">No folder selected</div>
+      <button class="action-btn" onclick="openFolder()" style="font-size:11px"><i class="ti ti-folder-open" aria-hidden="true"></i> Open folder</button>
+      <button class="action-btn" onclick="openFile()" style="font-size:11px"><i class="ti ti-file" aria-hidden="true"></i> Open file</button>
+    </div>
+    <div class="file-list" id="file-list">
+      <div class="empty-state">
+        <i class="ti ti-folder-off" style="font-size:28px;display:block;margin-bottom:8px;color:var(--color-text-secondary)" aria-hidden="true"></i>
+        Select a folder to browse files
+      </div>
+    </div>
+    <div class="upload-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
+      <i class="ti ti-upload" style="font-size:18px;display:block;margin-bottom:4px" aria-hidden="true"></i>
+      Drag & drop files here, or click to pick
+    </div>
+    <input type="file" id="file-input" multiple style="display:none" onchange="handleFileInput(this)">
+    <div id="file-preview" style="padding:0"></div>
+  </div>
+
+</div>
+
+<script>
+function setLastRefresh() {
+  const el = document.getElementById('last-refresh');
+  if (el) el.textContent = 'Updated ' + new Date().toLocaleTimeString();
+}
+
+function loadAppInfo() {
+  const ua = navigator.userAgent;
+  let browser = 'Unknown browser';
+  let version = '';
+  if (/Edg\//.test(ua)) { browser = 'Microsoft Edge'; version = ua.match(/Edg\/([\d.]+)/)?.[1] || ''; }
+  else if (/Chrome\//.test(ua) && !/Chromium/.test(ua)) { browser = 'Google Chrome'; version = ua.match(/Chrome\/([\d.]+)/)?.[1] || ''; }
+  else if (/Firefox\//.test(ua)) { browser = 'Mozilla Firefox'; version = ua.match(/Firefox\/([\d.]+)/)?.[1] || ''; }
+  else if (/Safari\//.test(ua) && !/Chrome/.test(ua)) { browser = 'Apple Safari'; version = ua.match(/Version\/([\d.]+)/)?.[1] || ''; }
+  else if (/OPR\//.test(ua)) { browser = 'Opera'; version = ua.match(/OPR\/([\d.]+)/)?.[1] || ''; }
+
+  let platform = navigator.platform || 'Unknown';
+  if (/Win/.test(platform)) platform = 'Windows';
+  else if (/Mac/.test(platform)) platform = 'macOS';
+  else if (/Linux/.test(platform)) platform = 'Linux';
+  else if (/iPhone|iPad/.test(ua)) platform = 'iOS';
+  else if (/Android/.test(ua)) platform = 'Android';
+
+  document.getElementById('app-name').textContent = browser;
+  document.getElementById('app-version').textContent = version ? 'v' + version : '';
+  document.getElementById('app-platform').textContent = '🖥 ' + platform + (screen ? '  ' + screen.width + '×' + screen.height : '');
+  document.getElementById('app-lang').textContent = '🌐 ' + (navigator.language || 'Unknown');
+}
+
+function loadWifi() {
+  const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  const isOnline = navigator.onLine;
+  const badge = document.getElementById('wifi-status-badge');
+  const nameEl = document.getElementById('wifi-name');
+  const typeEl = document.getElementById('wifi-type');
+  const speedEl = document.getElementById('wifi-speed');
+
+  if (!isOnline) {
+    badge.innerHTML = '<span class="badge badge-danger"><span class="status-dot dot-off"></span>Offline</span>';
+    nameEl.textContent = 'Not connected';
+    return;
+  }
+  badge.innerHTML = '<span class="badge badge-success"><span class="status-dot dot-on"></span>Connected</span>';
+
+  if (conn) {
+    const type = conn.effectiveType || conn.type || '';
+    const isWifi = type === 'wifi' || conn.type === 'wifi';
+    nameEl.textContent = isWifi ? 'WiFi (SSID hidden by browser)' : (type.toUpperCase() || 'Network');
+    typeEl.textContent = 'Type: ' + (conn.type || conn.effectiveType || 'unknown');
+    const dl = conn.downlink;
+    const rtt = conn.rtt;
+    speedEl.textContent = [dl ? '↓ ' + dl + ' Mbps' : '', rtt ? 'RTT ' + rtt + 'ms' : ''].filter(Boolean).join('  ·  ');
+  } else {
+    nameEl.textContent = 'Online';
+    typeEl.textContent = 'Network API not available';
+  }
+}
+
+async function loadBluetooth() {
+  const badge = document.getElementById('bt-badge');
+  const statusEl = document.getElementById('bt-status');
+  const scanBtn = document.getElementById('bt-scan-btn');
+
+  if (!navigator.bluetooth) {
+    badge.innerHTML = '<span class="badge badge-warn">Not supported</span>';
+    statusEl.textContent = 'Web Bluetooth API unavailable';
+    return;
+  }
+  try {
+    const avail = await navigator.bluetooth.getAvailability();
+    if (avail) {
+      badge.innerHTML = '<span class="badge badge-success"><span class="status-dot dot-on"></span>On</span>';
+      statusEl.textContent = 'Bluetooth is on';
+      if (scanBtn) scanBtn.style.display = 'inline-flex';
+    } else {
+      badge.innerHTML = '<span class="badge badge-danger"><span class="status-dot dot-off"></span>Off</span>';
+      statusEl.textContent = 'Bluetooth is off';
+    }
+  } catch(e) {
+    badge.innerHTML = '<span class="badge badge-warn">Unknown</span>';
+    statusEl.textContent = 'Could not read state';
+  }
+}
+
+async function scanBluetooth() {
+  const devEl = document.getElementById('bt-devices');
+  devEl.textContent = 'Scanning… (browser will prompt)';
+  try {
+    const device = await navigator.bluetooth.requestDevice({ acceptAllDevices: true });
+    devEl.textContent = 'Found: ' + (device.name || 'Unnamed device') + ' (' + device.id + ')';
+  } catch(e) {
+    devEl.textContent = e.name === 'NotFoundError' ? 'No device selected' : 'Scan cancelled or failed';
+  }
+}
+
+function loadVibration() {
+  const supEl = document.getElementById('vib-support');
+  const statusEl = document.getElementById('vib-status');
+  if ('vibrate' in navigator) {
+    supEl.innerHTML = '<span class="badge badge-success">Supported</span>';
+    statusEl.textContent = 'Vibration API ready';
+  } else {
+    supEl.innerHTML = '<span class="badge badge-warn">Not supported</span>';
+    statusEl.textContent = 'Not available (desktop/iOS)';
+  }
+}
+
+function doVibrate(pattern) {
+  if ('vibrate' in navigator) {
+    navigator.vibrate(pattern);
+    const el = document.getElementById('vib-status');
+    el.textContent = 'Vibrating…';
+    setTimeout(() => { el.textContent = 'Vibration API ready'; }, 1200);
+  }
+}
+
+function getLocation() {
+  const badge = document.getElementById('loc-badge');
+  const mapEl = document.getElementById('loc-map');
+  const mapText = document.getElementById('loc-map-text');
+  const coordRow = document.getElementById('coord-row');
+
+  if (!navigator.geolocation) {
+    badge.innerHTML = '<span class="badge badge-warn">Not supported</span>';
+    return;
+  }
+  badge.innerHTML = '<span class="badge badge-info"><i class="spinner">⟳</i> Locating…</span>';
+  mapText.textContent = 'Waiting for permission…';
+
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      const lat = pos.coords.latitude.toFixed(5);
+      const lng = pos.coords.longitude.toFixed(5);
+      const alt = pos.coords.altitude !== null ? pos.coords.altitude.toFixed(1) + 'm' : '—';
+      const acc = pos.coords.accuracy ? Math.round(pos.coords.accuracy) + 'm accuracy' : '';
+
+      badge.innerHTML = '<span class="badge badge-success"><span class="status-dot dot-on"></span>Located</span>';
+      document.getElementById('loc-accuracy').textContent = acc;
+      coordRow.style.display = 'flex';
+      document.getElementById('lat-pill').textContent = 'lat ' + lat;
+      document.getElementById('lng-pill').textContent = 'lng ' + lng;
+      document.getElementById('alt-pill').textContent = 'alt ' + alt;
+
+      mapEl.innerHTML = '<div style="width:100%;height:100%;position:relative;background:linear-gradient(135deg,#E6F1FB 0%,#EAF3DE 100%)">' +
+        '<svg width="100%" height="100%" viewBox="0 0 300 90" xmlns="http://www.w3.org/2000/svg">' +
+        '<line x1="0" y1="45" x2="300" y2="45" stroke="#B5D4F4" stroke-width="0.5"/>' +
+        '<line x1="150" y1="0" x2="150" y2="90" stroke="#B5D4F4" stroke-width="0.5"/>' +
+        '<circle cx="150" cy="45" r="16" fill="#378ADD" opacity="0.18"/>' +
+        '<circle cx="150" cy="45" r="7" fill="#185FA5"/>' +
+        '<circle cx="150" cy="45" r="4" fill="white"/>' +
+        '<text x="155" y="28" font-size="9" fill="#0C447C" font-family="monospace">' + lat + ', ' + lng + '</text>' +
+        '</svg></div>';
+    },
+    (err) => {
+      const msgs = { 1: 'Permission denied', 2: 'Position unavailable', 3: 'Timed out' };
+      badge.innerHTML = '<span class="badge badge-danger">Error</span>';
+      mapText.textContent = msgs[err.code] || 'Unknown error';
+      document.getElementById('loc-accuracy').textContent = '';
+    },
+    { enableHighAccuracy: true, timeout: 10000 }
+  );
+}
+
+async function openFolder() {
+  if (!window.showDirectoryPicker) {
+    alert('Folder access requires a browser that supports the File System Access API (Chrome/Edge desktop).');
+    return;
+  }
+  try {
+    const handle = await window.showDirectoryPicker();
+    document.getElementById('path-bar').textContent = handle.name + '/';
+    const list = document.getElementById('file-list');
+    list.innerHTML = '';
+    let count = 0;
+    for await (const [name, entry] of handle.entries()) {
+      if (count++ > 80) break;
+      const item = document.createElement('div');
+      item.className = 'file-item';
+      const isDir = entry.kind === 'directory';
+      item.innerHTML = '<i class="ti ' + (isDir ? 'ti-folder' : getFileIcon(name)) + ' file-type-icon" style="color:' + (isDir ? '#185FA5' : 'var(--color-text-secondary)') + '" aria-hidden="true"></i>' +
+        '<span class="file-name">' + escHtml(name) + '</span>' +
+        '<span class="file-size">' + (isDir ? 'folder' : '') + '</span>';
+      if (!isDir) {
+        item.onclick = async () => {
+          try {
+            const f = await entry.getFile();
+            previewFile(f);
+          } catch(e) {}
+        };
+      }
+      list.appendChild(item);
+    }
+    if (count === 0) list.innerHTML = '<div class="empty-state">Empty folder</div>';
+  } catch(e) {
+    if (e.name !== 'AbortError') alert('Could not open folder: ' + e.message);
+  }
+}
+
+async function openFile() {
+  if (!window.showOpenFilePicker) {
+    document.getElementById('file-input').click();
+    return;
+  }
+  try {
+    const [handle] = await window.showOpenFilePicker({ multiple: false });
+    const file = await handle.getFile();
+    document.getElementById('path-bar').textContent = file.name;
+    renderFileList([file]);
+    previewFile(file);
+  } catch(e) {}
+}
+
+function handleFileInput(input) {
+  const files = Array.from(input.files);
+  if (!files.length) return;
+  document.getElementById('path-bar').textContent = files.length + ' file(s) selected';
+  renderFileList(files);
+  if (files.length === 1) previewFile(files[0]);
+}
+
+function renderFileList(files) {
+  const list = document.getElementById('file-list');
+  list.innerHTML = '';
+  files.forEach(f => {
+    const item = document.createElement('div');
+    item.className = 'file-item';
+    item.innerHTML = '<i class="ti ' + getFileIcon(f.name) + ' file-type-icon" style="color:var(--color-text-secondary)" aria-hidden="true"></i>' +
+      '<span class="file-name">' + escHtml(f.name) + '</span>' +
+      '<span class="file-size">' + formatBytes(f.size) + '</span>';
+    item.onclick = () => previewFile(f);
+    list.appendChild(item);
+  });
+}
+
+function previewFile(file) {
+  const prev = document.getElementById('file-preview');
+  const ext = file.name.split('.').pop().toLowerCase();
+  const isImg = ['jpg','jpeg','png','gif','webp','svg','bmp'].includes(ext);
+  const isText = ['txt','md','json','js','ts','py','css','html','htm','xml','csv','log','sh','yaml','yml'].includes(ext);
+
+  if (isImg) {
+    const url = URL.createObjectURL(file);
+    prev.innerHTML = '<div style="padding:12px;border-top:0.5px solid var(--color-border-tertiary)"><div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:6px">Preview — ' + escHtml(file.name) + '</div><img src="' + url + '" style="max-width:100%;max-height:180px;border-radius:var(--border-radius-md);display:block" onload="URL.revokeObjectURL(this.src)"></div>';
+  } else if (isText && file.size < 200000) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      prev.innerHTML = '<div style="padding:12px;border-top:0.5px solid var(--color-border-tertiary)"><div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:6px">Preview — ' + escHtml(file.name) + '</div><pre style="font-family:var(--font-mono);font-size:11px;background:var(--color-background-secondary);padding:10px;border-radius:var(--border-radius-md);overflow:auto;max-height:160px;white-space:pre-wrap;color:var(--color-text-primary)">' + escHtml(e.target.result.slice(0, 3000)) + (e.target.result.length > 3000 ? '\n…' : '') + '</pre></div>';
+    };
+    reader.readAsText(file);
+  } else {
+    prev.innerHTML = '<div style="padding:12px;border-top:0.5px solid var(--color-border-tertiary);font-size:12px;color:var(--color-text-secondary)"><i class="ti ti-file" aria-hidden="true"></i>  ' + escHtml(file.name) + ' · ' + formatBytes(file.size) + ' — no preview available</div>';
+  }
+}
+
+function getFileIcon(name) {
+  const ext = (name.split('.').pop() || '').toLowerCase();
+  const map = { jpg:'ti-photo', jpeg:'ti-photo', png:'ti-photo', gif:'ti-photo', webp:'ti-photo', svg:'ti-vector', pdf:'ti-file-type-pdf', mp4:'ti-video', mov:'ti-video', mp3:'ti-music', wav:'ti-music', zip:'ti-file-zip', rar:'ti-file-zip', js:'ti-brand-javascript', ts:'ti-brand-typescript', py:'ti-brand-python', html:'ti-brand-html5', css:'ti-file-type-css', json:'ti-braces', md:'ti-markdown', txt:'ti-file-text', csv:'ti-table', xls:'ti-file-spreadsheet', xlsx:'ti-file-spreadsheet', doc:'ti-file-word', docx:'ti-file-word' };
+  return map[ext] || 'ti-file';
+}
+
+function formatBytes(b) {
+  if (b < 1024) return b + ' B';
+  if (b < 1048576) return (b/1024).toFixed(1) + ' KB';
+  return (b/1048576).toFixed(1) + ' MB';
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+const dropZone = document.getElementById('drop-zone');
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.style.background = 'var(--color-background-info)'; });
+dropZone.addEventListener('dragleave', () => { dropZone.style.background = ''; });
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.style.background = '';
+  const files = Array.from(e.dataTransfer.files);
+  if (files.length) {
+    document.getElementById('path-bar').textContent = files.length + ' file(s) dropped';
+    renderFileList(files);
+    if (files.length === 1) previewFile(files[0]);
+  }
+});
+
+function refreshAll() {
+  loadAppInfo();
+  loadWifi();
+  loadBluetooth();
+  loadVibration();
+  setLastRefresh();
+}
+
+refreshAll();
+document.getElementById('loc-badge').innerHTML = '<span class="badge badge-info">Press button to locate</span>';
+window.addEventListener('online', loadWifi);
+window.addEventListener('offline', loadWifi);
+</script>
