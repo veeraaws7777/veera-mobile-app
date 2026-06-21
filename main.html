@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Dashboard — TestPilot</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+</head>
+<body class="page-main">
+
+  <div class="app-shell">
+    <!-- Top bar -->
+    <header class="topbar">
+      <a href="index.html" class="back-btn">← Home</a>
+      <span class="topbar__title">Dashboard</span>
+      <button class="icon-btn" id="clearBtn" title="Reset session">🗑</button>
+    </header>
+
+    <!-- Session Setup -->
+    <section class="card card--elevated section-setup">
+      <h2 class="section-title">New Session</h2>
+      <div class="field-group">
+        <label class="field-label" for="sessionName">Session name</label>
+        <input class="field-input" id="sessionName" type="text" placeholder="e.g. Sprint 24 Regression" maxlength="60" />
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="testerName">Tester</label>
+        <input class="field-input" id="testerName" type="text" placeholder="Your name" maxlength="40" />
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="buildVersion">Build version</label>
+        <input class="field-input" id="buildVersion" type="text" placeholder="e.g. 3.4.1-rc2" maxlength="30" />
+      </div>
+      <button class="btn btn--primary" id="saveSessionBtn">Save Session</button>
+    </section>
+
+    <!-- Suite Builder -->
+    <section class="card section-suite">
+      <h2 class="section-title">Test Suite</h2>
+      <div class="add-test-row">
+        <input class="field-input" id="newTestInput" type="text" placeholder="Add a test case…" maxlength="100" />
+        <button class="btn btn--add" id="addTestBtn">＋</button>
+      </div>
+      <ul class="test-list" id="testList">
+        <!-- populated by JS -->
+      </ul>
+      <p class="empty-state" id="suiteEmpty">No test cases yet. Add one above.</p>
+    </section>
+
+    <!-- Quick Stats -->
+    <section class="card stats-row">
+      <div class="stat">
+        <span class="stat__num" id="statTotal">0</span>
+        <span class="stat__label">Total</span>
+      </div>
+      <div class="stat">
+        <span class="stat__num stat__num--pass" id="statPass">0</span>
+        <span class="stat__label">Passed</span>
+      </div>
+      <div class="stat">
+        <span class="stat__num stat__num--fail" id="statFail">0</span>
+        <span class="stat__label">Failed</span>
+      </div>
+      <div class="stat">
+        <span class="stat__num stat__num--skip" id="statSkip">0</span>
+        <span class="stat__label">Skipped</span>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <div class="cta-row">
+      <a href="test.html" class="btn btn--primary btn--full">Start Testing →</a>
+      <a href="completed.html" class="btn btn--ghost btn--full">View Results</a>
+    </div>
+
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const session = App.getSession();
+
+      // Prefill
+      if (session.name)    document.getElementById('sessionName').value  = session.name;
+      if (session.tester)  document.getElementById('testerName').value   = session.tester;
+      if (session.build)   document.getElementById('buildVersion').value = session.build;
+
+      renderList();
+      renderStats();
+
+      document.getElementById('saveSessionBtn').addEventListener('click', () => {
+        const name  = document.getElementById('sessionName').value.trim();
+        const tester= document.getElementById('testerName').value.trim();
+        const build = document.getElementById('buildVersion').value.trim();
+        if (!name) { App.toast('Session name is required.'); return; }
+        App.saveSession({ ...App.getSession(), name, tester, build });
+        App.toast('Session saved ✓');
+      });
+
+      document.getElementById('addTestBtn').addEventListener('click', addTest);
+      document.getElementById('newTestInput').addEventListener('keydown', e => {
+        if (e.key === 'Enter') addTest();
+      });
+
+      document.getElementById('clearBtn').addEventListener('click', () => {
+        if (confirm('Reset everything? This will clear all tests and results.')) {
+          App.clearAll();
+          location.reload();
+        }
+      });
+
+      function addTest() {
+        const input = document.getElementById('newTestInput');
+        const title = input.value.trim();
+        if (!title) { App.toast('Enter a test case name.'); return; }
+        App.addTest(title);
+        input.value = '';
+        renderList();
+        renderStats();
+      }
+
+      function renderList() {
+        const tests = App.getTests();
+        const list  = document.getElementById('testList');
+        const empty = document.getElementById('suiteEmpty');
+        list.innerHTML = '';
+        empty.style.display = tests.length ? 'none' : 'block';
+        tests.forEach((t, i) => {
+          const li = document.createElement('li');
+          li.className = 'test-item';
+          li.innerHTML = `
+            <span class="test-item__index">${i + 1}</span>
+            <span class="test-item__title">${t.title}</span>
+            <span class="test-item__status status--${t.status}">${App.statusLabel(t.status)}</span>
+            <button class="test-item__del" data-id="${t.id}" title="Remove">✕</button>
+          `;
+          list.appendChild(li);
+        });
+        list.querySelectorAll('.test-item__del').forEach(btn => {
+          btn.addEventListener('click', () => {
+            App.removeTest(btn.dataset.id);
+            renderList();
+            renderStats();
+          });
+        });
+      }
+
+      function renderStats() {
+        const tests = App.getTests();
+        document.getElementById('statTotal').textContent = tests.length;
+        document.getElementById('statPass').textContent  = tests.filter(t => t.status === 'pass').length;
+        document.getElementById('statFail').textContent  = tests.filter(t => t.status === 'fail').length;
+        document.getElementById('statSkip').textContent  = tests.filter(t => t.status === 'skip').length;
+      }
+    });
+  </script>
+</body>
+</html>

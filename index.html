@@ -1,1 +1,87 @@
-hii
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>TestPilot — QA Suite</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+</head>
+<body class="page-index">
+
+  <div class="splash-bg">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+  </div>
+
+  <div class="container">
+    <header class="splash-header">
+      <div class="logo-mark">
+        <span class="logo-icon">✦</span>
+        <span class="logo-text">TestPilot</span>
+      </div>
+      <p class="logo-sub">QA Testing Suite</p>
+    </header>
+
+    <section class="hero">
+      <h1 class="hero-title">Ship with <em>confidence.</em></h1>
+      <p class="hero-desc">A structured mobile QA workflow — from test setup to sign-off.</p>
+    </section>
+
+    <nav class="nav-grid">
+      <a href="main.html" class="nav-card nav-card--primary">
+        <span class="nav-card__icon">⚙️</span>
+        <div class="nav-card__body">
+          <span class="nav-card__label">Dashboard</span>
+          <span class="nav-card__sub">Manage test sessions &amp; configure runs</span>
+        </div>
+        <span class="nav-card__arrow">→</span>
+      </a>
+
+      <a href="test.html" class="nav-card">
+        <span class="nav-card__icon">🧪</span>
+        <div class="nav-card__body">
+          <span class="nav-card__label">Run Tests</span>
+          <span class="nav-card__sub">Execute test cases step by step</span>
+        </div>
+        <span class="nav-card__arrow">→</span>
+      </a>
+
+      <a href="completed.html" class="nav-card">
+        <span class="nav-card__icon">✅</span>
+        <div class="nav-card__body">
+          <span class="nav-card__label">Results</span>
+          <span class="nav-card__sub">View passed, failed &amp; skipped cases</span>
+        </div>
+        <span class="nav-card__arrow">→</span>
+      </a>
+    </nav>
+
+    <footer class="splash-footer">
+      <div class="status-bar">
+        <span class="status-dot" id="statusDot"></span>
+        <span id="statusText">Loading session…</span>
+      </div>
+      <p class="version">v2.1.0 · TestPilot Mobile</p>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    // Show live session status on index
+    document.addEventListener('DOMContentLoaded', () => {
+      const session = App.getSession();
+      const dot = document.getElementById('statusDot');
+      const txt = document.getElementById('statusText');
+      if (session && session.name) {
+        dot.classList.add('active');
+        txt.textContent = `Active session: ${session.name}`;
+      } else {
+        dot.classList.add('idle');
+        txt.textContent = 'No active session — start from Dashboard';
+      }
+    });
+  </script>
+</body>
+</html>
